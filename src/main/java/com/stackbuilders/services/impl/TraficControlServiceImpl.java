@@ -19,30 +19,35 @@ public class TraficControlServiceImpl  implements TraficControlService{
 	public static LocalTime END_PICO_PLACA_AFTERNOON = LocalTime.parse("19:00");
 	
 	@Override
-	public boolean predictPicoPlaca(String plate, String date, String hour ){
+	public String predictPicoPlaca(String plate, String date, String hour ){
+		StringBuffer result = new StringBuffer();
 		
 		String lastDigitAsString = plate.substring(plate.length() - 1);
 		
-		
+		if(!isNumeric(lastDigitAsString)){
+			
+		}
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
-		
-		//convert String to LocalDate
 		LocalDate a = LocalDate.parse(date, formatter);
-
 		DayOfWeek dayIn= a.getDayOfWeek();
 		DayOfWeek picoYPlacaDay= keys(getRules(),Integer.valueOf(lastDigitAsString));
 		LocalTime time =LocalTime.parse(hour);
-//		System.out.println(dayIn);
-//		System.out.println(picoYPlacaDay);
-//		System.out.println(START_PICO_PLACA_MORNING);
-//		System.out.println(END_PICO_PLACA_MORNING);
-//		System.out.println(START_PICO_PLACA_AFTERNOON);
-//		System.out.println(END_PICO_PLACA_AFTERNOON);
 		boolean isPosibleMorning= isOpen(START_PICO_PLACA_MORNING,END_PICO_PLACA_MORNING,time);
 		boolean isPosiblefternoon= isOpen(START_PICO_PLACA_AFTERNOON,END_PICO_PLACA_AFTERNOON,time);
-		return !(dayIn.equals(picoYPlacaDay) && (isPosibleMorning || isPosiblefternoon)) ;
+		
+		if(!(dayIn.equals(picoYPlacaDay) && (isPosibleMorning || isPosiblefternoon))){
+			result.append("You can drive now.");
+		}else{
+			result.append("You Can't drive now,you`ve  pico y placa.");
+		}
+		
+		return  result.toString();
 	}
 
+	public static boolean isNumeric(String str) {
+		return str.matches("-?\\d+(\\.\\d+)?"); 
+	}
+	
 	public static boolean isOpen(LocalTime start, LocalTime end, LocalTime time) {
 		  if (start.isAfter(end)) {
 		    return !time.isBefore(start) || !time.isAfter(end);
